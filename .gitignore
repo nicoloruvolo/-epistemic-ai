@@ -1,0 +1,16 @@
+.env
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Generated evaluation artifacts. Keep directory placeholders only.
+outputs/*.json
+outputs/*.jsonl
+outputs/*.pdf
+!outputs/.gitkeep
+
+# macOS
+.DS_Store
