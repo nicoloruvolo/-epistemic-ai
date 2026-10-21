@@ -564,3 +564,60 @@ def test_scores_logs_produced_by_agent_runner(tmp_path, monkeypatch):
     assert result["accounting"]["scored"]["total"] == 3 and result["accounting"]["balance_check_passed"]
     assert result["run_context"]["model"] == "tgt" and result["run_context"]["dataset_changed_since_run"] is False
     assert result["stability"]["n_pairs"] == 2 and result["stability"]["decision_flip_rate"] == 0.0
+
+
+# ------------------------------------------------------------------ selective prediction / risk-coverage
+def test_risk_coverage_reports_automation_and_review_tradeoff(tmp_path):
+    ds = dataset(*(scenario(f"RC{i}", variants=[]) for i in range(1, 5)))
+    records = [
+        rec("RC1", "RC1-BASE", OPTS[1], 0.95),  # correct, high confidence
+        rec("RC2", "RC2-BASE", OPTS[0], 0.90),  # incorrect, high confidence
+        rec("RC3", "RC3-BASE", OPTS[1], 0.60),  # correct, lower confidence
+        rec("RC4", "RC4-BASE", OPTS[0], 0.40),  # incorrect, low confidence
+    ]
+
+    result = run(tmp_path, ds, records)
+    assert "risk_coverage" in result
+    points = result["risk_coverage"]["thresholds"]
+    point = next(p for p in points if p["threshold"] == pytest.approx(0.8))
+
+    assert point["n_total"] == 4
+    assert point["n_automated"] == 2
+    assert point["n_referred"] == 2
+    assert point["coverage"] == pytest.approx(0.5)
+    assert point["review_rate"] == pytest.approx(0.5)
+    assert point["n_errors_automated"] == 1
+    assert point["n_errors_referred"] == 1
+    assert point["selective_risk"] == pytest.approx(0.5)
+
+
+def test_risk_coverage_zero_automation_has_undefined_risk(tmp_path):
+    ds = dataset(scenario("RC1", variants=[]))
+    records = [rec("RC1", "RC1-BASE", OPTS[1], 0.4)]
+
+    result = run(tmp_path, ds, records)
+    point = next(
+        p for p in result["risk_coverage"]["thresholds"]
+        if p["threshold"] == pytest.approx(0.8)
+    )
+
+    assert point["n_automated"] == 0
+    assert point["coverage"] == 0
+    assert point["selective_risk"] is None
+
+
+def test_risk_coverage_uses_base_scenarios_not_variants(tmp_path):
+    ds = dataset(scenario("RC1"))
+    records = [
+        rec("RC1", "RC1-BASE", OPTS[1], 0.9),
+        rec("RC1", "RC1-V1", OPTS[0], 0.99),
+        rec("RC1", "RC1-V2", OPTS[0], 0.99),
+    ]
+
+    result = run(tmp_path, ds, records)
+    points = result["risk_coverage"]["thresholds"]
+    point = next(p for p in points if p["threshold"] == pytest.approx(0.8))
+
+    assert point["n_total"] == 1
+    assert point["n_automated"] == 1
+    assert point["n_errors_automated"] == 0

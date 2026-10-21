@@ -646,6 +646,65 @@ def compute_stability(
 # --------------------------------------------------------------------------
 # Assembly
 # --------------------------------------------------------------------------
+def compute_risk_coverage(
+    observations: list[Scored],
+    thresholds: tuple[float, ...] = (
+        0.0, 0.1, 0.2, 0.3, 0.4,
+        0.5, 0.6, 0.7, 0.8, 0.9, 1.0,
+    ),
+) -> dict[str, Any]:
+    """Describe the trade-off between autonomous coverage and selective risk.
+
+    An observation is handled autonomously when confidence >= threshold.
+    All other observations are referred for human review.
+
+    This is a retrospective descriptive analysis, not a deployment guarantee.
+    """
+    n_total = len(observations)
+    points: list[dict[str, Any]] = []
+
+    for threshold in thresholds:
+        automated = [
+            o for o in observations
+            if o.confidence >= threshold
+        ]
+        referred = [
+            o for o in observations
+            if o.confidence < threshold
+        ]
+
+        n_automated = len(automated)
+        n_referred = len(referred)
+        errors_automated = sum(1 - o.correct for o in automated)
+        errors_referred = sum(1 - o.correct for o in referred)
+
+        points.append({
+            "threshold": threshold,
+            "n_total": n_total,
+            "n_automated": n_automated,
+            "n_referred": n_referred,
+            "coverage": n_automated / n_total if n_total else None,
+            "review_rate": n_referred / n_total if n_total else None,
+            "n_errors_automated": errors_automated,
+            "n_errors_referred": errors_referred,
+            "selective_risk": (
+                errors_automated / n_automated
+                if n_automated else None
+            ),
+        })
+
+    return {
+        "n_observations": n_total,
+        "threshold_rule": "Automate when confidence >= threshold; otherwise refer for human review.",
+        "thresholds": points,
+        "interpretation": (
+            "Descriptive retrospective simulation only. Results depend on the "
+            "evaluated sample and do not establish deployment safety or guarantee "
+            "that future cases will have the same error rate."
+        ),
+    }
+
+
 def compute_metrics(
     dataset: MetricsDataset,
     logs: LogLoad,
@@ -806,6 +865,7 @@ def compute_metrics(
             "base_only": compute_core_metrics(scored_base, config, with_intervals=True),
             "pooled_all_scorable": compute_core_metrics(scored, config, with_intervals=False),
         },
+        "risk_coverage": compute_risk_coverage(scored_base),
         "stability": compute_stability(dataset, scored, audit, config.allow_unreviewed_demo),
         "observations": audit,
         "definitions": DEFINITIONS,
