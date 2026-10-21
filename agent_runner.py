@@ -1,4 +1,4 @@
-"""Run a target AI model against Epistemic.ai scenarios and log its behavior.
+"""Run a target AI model against Novari scenarios and log its behavior.
 
 Step 3 of the v0.1 prototype. This module only *collects* behavioral logs:
 for each scenario text it records the target model's chosen decision, its

@@ -1,4 +1,4 @@
-"""Deterministic metrics engine for Epistemic.ai v0.1 (Step 4).
+"""Deterministic metrics engine for Novari v0.1 (Step 4).
 
 Reads the scenario dataset (with its human-reviewed answer key) and the
 agent logs, then reports performance, confidence, calibration and stability

@@ -1,4 +1,4 @@
-"""Generate synthetic educational evaluation scenarios for Epistemic.ai v0.1.
+"""Generate synthetic educational evaluation scenarios for Novari v0.1.
 
 This module drafts scenarios and proposed scoring criteria with an LLM. An
 LLM-generated answer key is not ground truth. Every scoring rubric and every
@@ -779,7 +779,7 @@ def print_summary(dataset: ScenarioDataset, output_path: Path) -> None:
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Generate 10 synthetic Epistemic.ai evaluation scenarios. "
+            "Generate 10 synthetic Novari evaluation scenarios. "
             "Draft scoring criteria remain pending_review."
         )
     )

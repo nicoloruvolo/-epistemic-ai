@@ -1,8 +1,8 @@
-# Epistemic.ai
+# Novari
 
 **Evaluating confidence, calibration, and reliability in large language models.**
 
-Epistemic.ai is an early-stage research and engineering project exploring whether confidence expressed by large language models (LLMs) provides a reliable signal about the correctness of their answers.
+Novari is an early-stage research and engineering project exploring whether confidence expressed by large language models (LLMs) provides a reliable signal about the correctness of their answers.
 
 The goal is to develop a reproducible evaluation framework that examines whether model confidence is informative, stable, and useful for decision-making.
 
@@ -12,7 +12,7 @@ The goal is to develop a reproducible evaluation framework that examines whether
 
 An LLM can provide a correct answer with low confidence or an incorrect answer with high confidence. Answer accuracy alone may therefore be insufficient when deciding whether to trust an answer, request verification, or abstain.
 
-Epistemic.ai approaches this problem from a measurement perspective. Rather than assuming that a model's stated confidence is meaningful, the project investigates whether confidence behaves like a useful measurement signal.
+Novari approaches this problem from a measurement perspective. Rather than assuming that a model's stated confidence is meaningful, the project investigates whether confidence behaves like a useful measurement signal.
 
 ## Research Questions
 
@@ -66,5 +66,5 @@ These are research objectives, not claims that every dimension has already been 
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/nicoloruvolo/-epistemic-ai.git
-cd ./-epistemic-ai
+git clone https://github.com/nicoloruvolo/novari.git
+cd ./novari
